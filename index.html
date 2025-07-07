@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Görev Takip</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .uyari {
+      background: #ffe0e0;
+      color: #a00;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #f5c2c2;
+      border-radius: 5px;
+      display: none;
+      font-size: 14px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      background: #e0e0e0;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    li.tamamlandi {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    .tarih {
+      font-size: 12px;
+      color: #333;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Görev Takip</h2>
+
+    <div class="uyari" id="uyari">Lütfen görev ve tarih girin.</div>
+
+    <div class="input-group">
+      <input type="text" id="gorevInput" placeholder="Görev yaz">
+      <input type="date" id="tarihInput">
+      <button onclick="gorevEkle()">Ekle</button>
+    </div>
+
+    <ul id="gorevListesi"></ul>
+  </div>
+
+  <script>
+    window.onload = function () {
+      gorevleriYukle();
+    };
+
+    function gorevEkle() {
+      const input = document.getElementById("gorevInput");
+      const tarih = document.getElementById("tarihInput").value;
+      const uyari = document.getElementById("uyari");
+
+      const metin = input.value.trim();
+
+      // Uyarı kontrolü
+      if (metin === "" || tarih === "") {
+        uyari.style.display = "block";
+        return;
+      } else {
+        uyari.style.display = "none";
+      }
+
+      const li = document.createElement("li");
+      li.textContent = metin;
+
+      const tarihEtiketi = document.createElement("span");
+      tarihEtiketi.className = "tarih";
+      tarihEtiketi.textContent = `📅 ${tarih}`;
+
+      li.appendChild(tarihEtiketi);
+
+      li.onclick = function () {
+        li.classList.toggle("tamamlandi");
+        gorevleriKaydet();
+      };
+
+      const silBtn = document.createElement("button");
+      silBtn.textContent = "Sil";
+      silBtn.onclick = function (e) {
+        e.stopPropagation();
+        li.remove();
+        gorevleriKaydet();
+      };
+
+      li.appendChild(silBtn);
+      document.getElementById("gorevListesi").appendChild(li);
+      input.value = "";
+      document.getElementById("tarihInput").value = "";
+      gorevleriKaydet();
+    }
+
+    function gorevleriKaydet() {
+      const liste = document.getElementById("gorevListesi").innerHTML;
+      localStorage.setItem("gorevler", liste);
+    }
+
+    function gorevleriYukle() {
+      const veri = localStorage.getItem("gorevler");
+      if (veri) {
+        document.getElementById("gorevListesi").innerHTML = veri;
+
+        document.querySelectorAll("#gorevListesi li").forEach((li) => {
+          li.onclick = function () {
+            li.classList.toggle("tamamlandi");
+            gorevleriKaydet();
+          };
+
+          const silBtn = li.querySelector("button");
+          if (silBtn) {
+            silBtn.onclick = function (e) {
+              e.stopPropagation();
+              li.remove();
+              gorevleriKaydet();
+            };
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>
